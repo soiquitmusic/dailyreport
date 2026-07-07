@@ -18,6 +18,6 @@ jobs:
         run: python app/gh_daily_report.py
       - run: |
           git config user.name bot && git config user.email bot@report
-          git pull --rebase origin main || true
+          git pull --rebase origin master || true
           git add reports/am/ 2>/dev/null || true
           git diff --staged --quiet || (git commit -m "早报 $(date '+%Y-%m-%d')" && git push || true)

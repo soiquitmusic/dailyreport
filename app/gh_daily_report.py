@@ -379,6 +379,67 @@ def build_ms_data():
     ctx["data"]["stocks"] = get_market_data(["NVDA", "MU", "AMD", "AVGO", "TSM", "MSFT", "META"])
     return ctx
 
+def build_fund_flow_data():
+    """14点报：A股板块资金流向"""
+    now = datetime.now(TZ_BJ)
+    wd = ["周一","周二","周三","周四","周五","周六","周日"][now.weekday()]
+    ctx = {"date": f"{now.year}/{now.month}/{now.day}（{wd}）", "data":{}}
+
+    # 东方财富：行业板块资金流向（按主力净流入排序 fid=f62）
+    try:
+        url = "https://push2.eastmoney.com/api/qt/clist/get?fid=f62&fs=m:90+t2&fields=f2,f3,f4,f12,f14,f62,f184,f66,f69,f72,f75,f78,f81,f84,f87,f204&pn=1&pz=56&po=1&np=1&fltt=2&invt=2"
+        data = json.loads(urlopen(Request(url, headers={"User-Agent":"Mozilla/5.0"}), timeout=10).read())
+        sectors = []
+        for item in data.get("data",{}).get("diff",[]):
+            sectors.append({
+                "name": item.get("f14"),
+                "change_pct": item.get("f3"),
+                "main_force_net": item.get("f62"),
+                "super_large_net": item.get("f184"),
+                "large_net": item.get("f66"),
+                "medium_net": item.get("f69"),
+                "small_net": item.get("f72"),
+                "main_force_ratio": item.get("f75"),
+                "top_stock": item.get("f204"),
+            })
+        ctx["data"]["industry_sectors"] = sectors
+        log(f"行业板块资金流: {len(sectors)}个")
+    except Exception as e:
+        log(f"行业板块资金流API: {e}")
+
+    # 概念板块资金流向
+    try:
+        url = "https://push2.eastmoney.com/api/qt/clist/get?fid=f62&fs=m:90+t3&fields=f2,f3,f4,f12,f14,f62,f184,f66,f69,f72,f75,f78,f81,f84,f87,f204&pn=1&pz=248&po=1&np=1&fltt=2&invt=2"
+        data = json.loads(urlopen(Request(url, headers={"User-Agent":"Mozilla/5.0"}), timeout=10).read())
+        concepts = []
+        for item in data.get("data",{}).get("diff",[]):
+            concepts.append({
+                "name": item.get("f14"),
+                "change_pct": item.get("f3"),
+                "main_force_net": item.get("f62"),
+                "main_force_ratio": item.get("f75"),
+                "top_stock": item.get("f204"),
+            })
+        ctx["data"]["concept_sectors"] = concepts
+        log(f"概念板块资金流: {len(concepts)}个")
+    except Exception as e:
+        log(f"概念板块资金流API: {e}")
+
+    # 大盘指数(东方财富)
+    em_secids = "1.000001,0.399001,0.399006,1.000688,100.HSI,100.HSTECH"
+    try:
+        em_url = f"https://push2.eastmoney.com/api/qt/ulist.np/get?fields=f2,f3,f4,f12,f14&secids={em_secids}"
+        em_data = json.loads(urlopen(Request(em_url, headers={"User-Agent":"Mozilla/5.0"}), timeout=10).read())
+        em_map = {"1.000001":"上证指数","0.399001":"深证成指","0.399006":"创业板指","1.000688":"科创50","100.HSI":"恒生指数","100.HSTECH":"恒生科技"}
+        ctx["data"]["indices"] = {}
+        for item in em_data.get("data",{}).get("diff",[]):
+            name = em_map.get(item.get("f12",""), item.get("f14",""))
+            ctx["data"]["indices"][name] = {"price": item.get("f2"), "change_pct": item.get("f3")}
+    except Exception as e:
+        log(f"指数API: {e}")
+
+    return ctx
+
 def main():
     now = datetime.now(TZ_BJ)
     mode = os.environ.get("REPORT_MODE","am")
@@ -401,6 +462,11 @@ def main():
         report = llm_analyze(ctx, "daily_pm")
         prefix = "晚报-A股/亚洲"
         folder = "pm"
+    elif mode == "fund_flow":
+        ctx = build_fund_flow_data()
+        report = llm_analyze(ctx, "daily_fund_flow")
+        prefix = "午后-A股资金流向"
+        folder = "fund_flow"
     else:
         ctx = build_data()
         report = llm_analyze(ctx, "daily_am")

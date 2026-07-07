@@ -1,0 +1,23 @@
+name: 9点简报
+
+on:
+  schedule:
+    - cron: '0 1 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install yfinance
+      - env:
+          FEISHU_URL: ${{ secrets.FEISHU_URL }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          REPORT_MODE: briefing
+        run: python app/gh_daily_report.py
+      - run: |
+          git config user.name bot && git config user.email bot@report
+          git pull --rebase origin main || true
+          git add reports/briefing/ 2>/dev/null || true
+          git diff --staged --quiet || (git commit -m "简报 $(date '+%Y-%m-%d')" && git push || true)

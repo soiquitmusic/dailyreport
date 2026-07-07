@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# 自动生成
+data_cache.json
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 环境
+.env
+
+# 持仓敏感数据(本地)
+history/snapshots/
+reports/portfolio/

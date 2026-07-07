@@ -1,0 +1,19 @@
+name: 持仓周报
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install yfinance
+      - env:
+          FEISHU_URL: ${{ secrets.FEISHU_URL }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          PORTFOLIO: ${{ secrets.PORTFOLIO }}
+          REPORT_MODE: portfolio
+        run: python app/gh_daily_report.py

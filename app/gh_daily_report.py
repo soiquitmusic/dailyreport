@@ -330,6 +330,7 @@ def build_briefing_data():
     wd = ["周一","周二","周三","周四","周五","周六","周日"][now.weekday()]
     ctx = {"date": f"{now.year}/{now.month}/{now.day}（{wd}）", "data":{}}
     ctx["data"]["headlines"] = [f"[{l}] {t}" for l,t in fetch_rss(BRIEFING_FEEDS, 15)]
+    return ctx
 
 def build_ms_data():
     """大摩周报：Morgan Stanley 研报+新闻深度聚合"""
@@ -376,8 +377,6 @@ def build_ms_data():
     # 市场数据兜底
     ctx["data"]["indices"] = get_market_data(["^GSPC", "^IXIC", "^SOX"])
     ctx["data"]["stocks"] = get_market_data(["NVDA", "MU", "AMD", "AVGO", "TSM", "MSFT", "META"])
-    return ctx
-    ctx["data"]["domestic"] = [f"[{l}] {t}" for l,t in fetch_rss(DOMESTIC_FEEDS, 8)]
     return ctx
 
 def main():

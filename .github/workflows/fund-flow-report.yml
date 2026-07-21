@@ -2,7 +2,7 @@ name: 午后资金流向
 
 on:
   schedule:
-    - cron: '0 5 * * 1-5'
+    - cron: '0 21 * * 1-4'
   workflow_dispatch:
 
 jobs:

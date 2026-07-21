@@ -2,7 +2,7 @@ name: 晚报
 
 on:
   schedule:
-    - cron: '58 12 * * 1-5'
+    - cron: '58 4 * * 1-5'
   workflow_dispatch:
 
 jobs:

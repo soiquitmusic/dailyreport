@@ -2,7 +2,7 @@ name: 早报
 
 on:
   schedule:
-    - cron: '33 23 * * 1-5'
+    - cron: '33 15 * * 1-5'
   workflow_dispatch:
 
 jobs:

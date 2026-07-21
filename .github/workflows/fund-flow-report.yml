@@ -2,7 +2,8 @@ name: 午后资金流向
 
 on:
   schedule:
-    - cron: '0 21 * * 1-4'
+    - cron: '23 13 * * 1-5'
+      timezone: 'Asia/Shanghai'
   workflow_dispatch:
 
 jobs:

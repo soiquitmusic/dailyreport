@@ -2,7 +2,8 @@ name: 9点简报
 
 on:
   schedule:
-    - cron: '0 17 * * 1-5'
+    - cron: '17 9 * * 1-5'
+      timezone: 'Asia/Shanghai'
   workflow_dispatch:
 
 jobs:

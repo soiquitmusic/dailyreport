@@ -2,7 +2,8 @@ name: 早报
 
 on:
   schedule:
-    - cron: '33 15 * * 1-5'
+    - cron: '33 7 * * 1-5'
+      timezone: 'Asia/Shanghai'
   workflow_dispatch:
 
 jobs:
